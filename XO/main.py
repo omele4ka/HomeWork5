@@ -3,6 +3,7 @@
 import random
 
 board = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+win = ((1, 2, 3), (4, 5, 6), (7, 8, 9), (1, 4, 7), (2, 5, 8), (3, 6, 9), (1, 5, 9), (3, 5, 7))
 
 
 def get_play_board(board):
@@ -32,15 +33,13 @@ def whoes_first():
 def make_move(board, player_mark, move):
     board[move] = player_mark
 
-def winner(cell, mark) -> bool:
-    return (cell[7] == mark and cell[8] == mark and cell[9] == mark)
-    return (cell[4] == mark and cell[5] == mark and cell[6] == mark)
-    return (cell[1] == mark and cell[2] == mark and cell[3] == mark)
-    return (cell[7] == mark and cell[4] == mark and cell[1] == mark)
-    return (cell[8] == mark and cell[5] == mark and cell[2] == mark)
-    return (cell[9] == mark and cell[6] == mark and cell[3] == mark)
-    return (cell[1] == mark and cell[5] == mark and cell[9] == mark)
-    return (cell[7] == mark and cell[5] == mark and cell[3] == mark)
+def winner() -> bool:
+    global board
+    global win
+    for opt in win:
+        if (board[opt[0]] == board[opt[1]]  == board[opt[2]] ):
+            return True
+    return False
 
 def get_board_copy(board):
     board_copy = []
@@ -52,8 +51,8 @@ def is_cell_free(board, move):
     return board[move] == ' '
     
 def player_move(board):
-    move = ' '
-    while move not in '1 2 3 4 5 6 7 8 9' or not is_cell_free(board, move):
+    move = '0'
+    while move not in '1 2 3 4 5 6 7 8 9' or not is_cell_free(board, int(move)):
         print('Введите номер ячейки ')
         move = input()
     return int(move)
@@ -74,21 +73,21 @@ def bot_move(board, bot_mark):
     else:
         player_mark == 'X'
     for i in range(1, 10):
-        board_copy = get_board_copy
+        board_copy = get_board_copy(board)
         if is_cell_free(board_copy, i):
             make_move(board_copy, bot_mark, i)
-            if winner(board_copy, bot_mark):
+            if winner():
                 return i
     for i in range(1, 10):
-        board_copy = get_board_copy
+        board_copy = get_board_copy(board)
         if is_cell_free(board_copy, i):
             make_move(board_copy, player_mark, i)
-            if winner(board_copy, player_mark):
+            if winner():
                 return i
     move = choose_random_move(board, [1, 3, 7, 9])
     if move != None:
         return move
-    if is_cell_free(board):
+    if is_cell_free(board, move):
         if is_cell_free(board, 5):
             return 5
     return choose_random_move(board, [2, 4, 6, 8])
@@ -112,8 +111,7 @@ while True:
             get_play_board(the_board)
             move = player_move(the_board)
             make_move(the_board, player_mark, move)
-
-            if winner(the_board, player_mark):
+            if winner():
                 get_play_board(the_board)
                 print('Ура! Ты победил!')
                 game_playing = False
@@ -121,11 +119,14 @@ while True:
                 if board_full(the_board):
                     get_play_board(the_board)
                     print('Вы сыграли вничью')
+                else:
+                    turn = 'Бот'
+
         else:
             move = bot_move(the_board, bot_mark)
             make_move(the_board, bot_mark, move)
 
-            if winner(the_board, bot_mark):
+            if winner():
                 get_play_board(the_board)
                 print('Увы! Бот победил')
                 game_playing = False
